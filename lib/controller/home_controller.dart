@@ -66,7 +66,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   }
 
   String get inTime => _formatShortTime(todayAtt.value?.inTime);
-  String get breakTime => _formatShortTime(todayAtt.value?.breakTime);
   String get outTime => _formatShortTime(todayAtt.value?.outTime);
   String get scoreDaily => todayAtt.value?.dailyScore ?? '-';
   String get scoreMonthly => todayAtt.value?.monthlyScore ?? '-';

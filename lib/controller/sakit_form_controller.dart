@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,64 +16,100 @@ class SakitFormController extends GetxController with MonthYearFilterMixin {
 
   final formKey = GlobalKey<FormState>();
 
-  // Dua tanggal: mulai & selesai
+  // Form controllers
   final startDateController = TextEditingController();
   final endDateController = TextEditingController();
-
-  // Alasan
   final reasonController = TextEditingController();
 
-  // Opsi “dengan/tanpa surat dokter”
-  final isWithDoctorNote = false.obs;
-
-  // PDF lampiran (jika “dengan surat dokter”)
+  // File picker
   final pickedFile = Rxn<PlatformFile>();
   final fileBase64 = ''.obs;
+
+  // Jenis sakit options
+  final jenisSakit = ['dengan_surat', 'tanpa_surat'];
+  final selectedJenis = ''.obs;
+
+  // Loading state
+  final RxBool isSubmitting = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     bindFilter(fetchAll);
     fetchAll(null);
+
+    // Set default jenis sakit ke "tanpa_surat"
+    selectedJenis.value = jenisSakit[1];
   }
 
   Future<void> fetchAll(String? month) async {
-    debugPrint("Fetching sakit data for month: $month");
     try {
       isLoading.value = true;
-      final data = await _service.getAbsences(month: month);
-      final sakitData = data
-          .where((e) =>
-              e.type == 'Sakit Surat Dokter' || e.type == 'Sakit tanpa Surat')
-          .toList();
+      final sakitData = await _service.getAbsences(month: month);
       listSakit.assignAll(sakitData);
-      debugPrint("Fetched ${sakitData.length} sakit records");
-    } catch (e, stack) {
-      debugPrint("Error fetching sakit data: $e");
-      debugPrint("Stack trace:\n$stack");
-      Get.snackbar('Error', 'Gagal mengambil data sakit:\n$e');
+      debugPrint("📊 Fetched ${sakitData.length} sakit records");
+    } catch (e) {
+      if (e.toString().contains('404') ||
+          e.toString().contains('Tidak ada data')) {
+        listSakit.clear();
+        Get.snackbar(
+          "Info",
+          "Tidak ada data sakit untuk periode yang dipilih",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          "Error",
+          "Gagal mengambil data sakit: $e",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// Pick PDF file (hanya jika user memilih “dengan surat dokter”)
-  Future<void> pickPdf() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-      withData: true,
-    );
-    if (result != null && result.files.isNotEmpty) {
-      final file = result.files.first;
-      pickedFile.value = file;
+  /// Clear filter & reload all
+  void clearFilter() {
+    selectedMonth.value = null;
+    selectedYear.value = null;
+    fetchAll(null);
+  }
 
-      // Simpan base64 agar bisa dikirim dalam request
-      final bytes = file.bytes!;
-      fileBase64.value = base64Encode(bytes);
+  /// Pick PDF file
+  Future<void> pickPdf() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        withData: true,
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        pickedFile.value = file;
+
+        // Convert to base64
+        final bytes = file.bytes!;
+        fileBase64.value = base64Encode(bytes);
+      }
+    } catch (e) {
+      debugPrint("❌ Error picking PDF: $e");
+      Get.snackbar(
+        "Error",
+        "Gagal memilih file: $e",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
+  /// Pick date
   Future<void> pickDate(
       BuildContext context, TextEditingController targetCtrl) async {
     final DateTime? dt = await showDatePicker(
@@ -83,18 +118,26 @@ class SakitFormController extends GetxController with MonthYearFilterMixin {
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
+
     if (dt != null) {
-      targetCtrl.text =
+      final formatted =
           '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+      targetCtrl.text = formatted;
     }
   }
 
+  /// Submit form sakit
   Future<void> submitForm() async {
-    // 1. Validasi form text (tanggal & alasan)
+    // Prevent double submission
+    if (isSubmitting.value) {
+      return;
+    }
+
+    // 1. Validasi form fields
     if (!formKey.currentState!.validate()) {
       Get.snackbar(
         "Validasi Gagal",
-        "Lengkapi semua field",
+        "Lengkapi semua field yang diperlukan",
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -102,11 +145,11 @@ class SakitFormController extends GetxController with MonthYearFilterMixin {
       return;
     }
 
-    // 2. Jika user memilih “dengan surat dokter”, pastikan ada file PDF
-    if (isWithDoctorNote.value && pickedFile.value == null) {
+    // 2. Validasi jenis sakit harus dipilih
+    if (selectedJenis.value.isEmpty) {
       Get.snackbar(
         "Validasi Gagal",
-        "Anda harus mengunggah surat dokter.",
+        "Pilih jenis sakit (dengan/tanpa surat dokter)",
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -114,27 +157,54 @@ class SakitFormController extends GetxController with MonthYearFilterMixin {
       return;
     }
 
-    // 3. Siapkan data lampiran (hanya jika withDoctorNote == true)
-    String? lampiranDataUri;
-    if (isWithDoctorNote.value) {
-      // Prefix data URI agar backend tahu ini base64 PDF
-      lampiranDataUri = 'data:application/pdf;base64,${fileBase64.value}';
-    } else {
-      // Tanpa surat dokter → tidak menyertakan lampiran
-      lampiranDataUri = null;
+    // 3. Jika pilih "dengan_surat", wajib upload PDF
+    if (selectedJenis.value == 'dengan_surat' && pickedFile.value == null) {
+      Get.snackbar(
+        "Validasi Gagal",
+        "Anda harus mengunggah surat dokter (PDF)",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
     }
 
-    // 4. Buat objek request dengan atau tanpa lampiran
+    // Set loading
+    isSubmitting.value = true;
+
+    // 4. Siapkan lampiran (base64 string, tanpa prefix)
+    String? lampiranBase64;
+    if (selectedJenis.value == 'dengan_surat' && fileBase64.value.isNotEmpty) {
+      lampiranBase64 = fileBase64.value;
+    } else {
+      lampiranBase64 = null;
+    }
+
+    // 5. Buat request object
     final req = SubmissionRequest.sakit(
       tanggalMulai: startDateController.text,
       tanggalSelesai: endDateController.text,
       reason: reasonController.text,
-      lampiran: lampiranDataUri, // null jika user pilih tanpa surat
-      withDoctorNote: isWithDoctorNote.value,
+      lampiran: lampiranBase64,
+      jenisSakit: selectedJenis.value,
     );
 
+    final formData = req.toFormData();
+    formData.forEach((key, value) {
+      if (key == 'lampiran') {
+        debugPrint(
+            "  ✓ $key: [base64 string, ${value.toString().length} chars]");
+      } else {
+        debugPrint("  ✓ $key: $value");
+      }
+    });
+    // 6. Submit ke API
     try {
-      await SubmissionService().submit(req);
+      debugPrint("🌐 Sending to API...");
+      await SubmissionService().submitSakit(req);
+
+      debugPrint("✅ SUBMISSION SUCCESS!");
+
       Get.snackbar(
         "Sukses",
         "Pengajuan sakit berhasil dikirim",
@@ -143,7 +213,10 @@ class SakitFormController extends GetxController with MonthYearFilterMixin {
         colorText: Colors.white,
       );
 
-      // Setelah submit, kembali ke bottomNav (atau halaman lain)
+      // Clear form
+      _clearForm();
+
+      // Navigate back
       Get.offAllNamed(AppRoutes.bottomNav);
     } catch (e) {
       Get.snackbar(
@@ -152,8 +225,22 @@ class SakitFormController extends GetxController with MonthYearFilterMixin {
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
+        duration: const Duration(seconds: 5),
       );
+    } finally {
+      isSubmitting.value = false;
+      debugPrint("=== 🏁 SUBMISSION ENDED ===\n");
     }
+  }
+
+  /// Clear form after successful submission
+  void _clearForm() {
+    startDateController.clear();
+    endDateController.clear();
+    reasonController.clear();
+    pickedFile.value = null;
+    fileBase64.value = '';
+    selectedJenis.value = jenisSakit[1]; // Reset to tanpa_surat
   }
 
   @override

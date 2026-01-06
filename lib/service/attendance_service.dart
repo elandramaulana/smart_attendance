@@ -19,18 +19,48 @@ class AttendanceService {
     }
   }
 
+  /// Record attendance dengan base64 string (sesuai backend)
   Future<void> recordAttendance(AttendanceModel record) async {
     await _attachToken();
-    final resp = await _api.postFormData(
-      Endpoints.store_attendance,
-      fields: record.toJson(),
-    );
-    print('[AttendanceService] recordAttendance response: $resp');
+    print('[AttendanceService] Recording attendance...');
+    print('[AttendanceService] Session: ${record.attSession}');
+
+    try {
+      if (record.selfie == null || record.selfie!.isEmpty) {
+        throw Exception('Selfie data is required');
+      }
+
+      print('[AttendanceService] Preparing form data...');
+      final formData = record.toJson();
+      print('[AttendanceService] Form fields: ${formData.keys.toList()}');
+      print(
+          '[AttendanceService] Selfie size: ${(record.selfie!.length / 1024).toStringAsFixed(2)} KB');
+
+      print('[AttendanceService] Sending to ${Endpoints.store_attendance}...');
+      final response = await _api.postFormData(
+        Endpoints.store_attendance,
+        fields: formData,
+      );
+
+      print('[AttendanceService] ✅ Success: $response');
+    } catch (e, stackTrace) {
+      print('[AttendanceService] ❌ Error: $e');
+      print('[AttendanceService] StackTrace: $stackTrace');
+      rethrow;
+    }
   }
 
   Future<AttendanceTodayModel> getTodayAttendance() async {
     await _attachToken();
-    final raw = await _api.get(Endpoints.attendance_today);
-    return AttendanceTodayModel.fromJson(raw as Map<String, dynamic>);
+    print('[AttendanceService] Fetching today attendance...');
+
+    try {
+      final raw = await _api.get(Endpoints.attendance_today);
+      print('[AttendanceService] Today attendance fetched successfully');
+      return AttendanceTodayModel.fromJson(raw as Map<String, dynamic>);
+    } catch (e) {
+      print('[AttendanceService] Error fetching today attendance: $e');
+      rethrow;
+    }
   }
 }

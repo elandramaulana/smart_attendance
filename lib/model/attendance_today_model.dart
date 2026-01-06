@@ -1,11 +1,8 @@
-// lib/model/attendance_today_model.dart
 class AttendanceTodayModel {
   final int id;
   final String name;
   final String? inTime;
   final String? inStatus;
-  final String? breakTime;
-  final String? breakStatus;
   final String? outTime;
   final String? outStatus;
   final String? dailyScore;
@@ -16,8 +13,6 @@ class AttendanceTodayModel {
     required this.name,
     this.inTime,
     this.inStatus,
-    this.breakTime,
-    this.breakStatus,
     this.outTime,
     this.outStatus,
     this.dailyScore,
@@ -31,8 +26,6 @@ class AttendanceTodayModel {
       name: data['name'] as String,
       inTime: data['in_time'] as String?,
       inStatus: data['in_status'] as String?,
-      breakTime: data['break_time'] as String?,
-      breakStatus: data['break_status'] as String?,
       outTime: data['out_time'] as String?,
       outStatus: data['out_status'] as String?,
       dailyScore: data['daily_score']?.toString(),
@@ -40,7 +33,21 @@ class AttendanceTodayModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'data': {
+        'id': id,
+        'name': name,
+        if (inTime != null) 'in_time': inTime,
+        if (inStatus != null) 'in_status': inStatus,
+        if (outTime != null) 'out_time': outTime,
+        if (outStatus != null) 'out_status': outStatus,
+        if (dailyScore != null) 'daily_score': dailyScore,
+        if (monthlyScore != null) 'monthly_score': monthlyScore,
+      },
+    };
+  }
+
   bool get hasCheckedIn => inTime != null;
-  bool get hasOnBreak => breakTime != null;
   bool get hasCheckedOut => outTime != null;
 }

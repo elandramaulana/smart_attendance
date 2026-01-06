@@ -9,30 +9,27 @@ class CutiService {
   Future<void> _attachToken() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token') ?? '';
-    if (token.isNotEmpty) {
-      _api.setBearerToken(token);
-    }
+    if (token.isNotEmpty) _api.setBearerToken(token);
   }
 
   Future<List<CutiModel>> getCuti({String? month}) async {
     await _attachToken();
 
-    final response = await _api.postFormData(
-      Endpoints.cuti,
-      fields: month != null ? {'month': month} : null,
-    );
-    if (response['success'] != true) {
-      throw Exception('Failed to fetch cuti');
-    }
-    final rawData = response['data'];
-    if (rawData == null || rawData is! List) {
-      return <CutiModel>[];
+    String path = Endpoints.listCuti;
+    if (month != null) {
+      path += '?month=$month';
     }
 
-    final List listData = rawData as List;
+    final resp = await _api.get(path);
 
-    return listData
-        .map((e) => CutiModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+    // Response langsung berupa List
+    if (resp is! List) {
+      throw Exception(
+          'Failed to fetch cuti: Expected List but got ${resp.runtimeType}');
+    }
+
+    return (resp as List).map((e) {
+      return CutiModel.fromJson(e as Map<String, dynamic>);
+    }).toList();
   }
 }

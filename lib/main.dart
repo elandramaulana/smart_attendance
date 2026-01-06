@@ -7,13 +7,13 @@ import 'package:smart_attendance/core/app_config.dart';
 import 'package:smart_attendance/core/app_pages.dart';
 import 'package:smart_attendance/core/base_provider.dart';
 import 'package:smart_attendance/service/auth_service.dart';
-import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
+// import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppConfig.load();
-  await FMTCObjectBoxBackend().initialise();
-  // Force portrait orientation
+  // await FMTCObjectBoxBackend().initialise();
+  // // Force portrait orientation
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -53,9 +53,11 @@ class MyApp extends StatelessWidget {
                 ),
           ),
           builder: (context, widget) {
-            ScreenUtil.init(context);
+            // ✅ HANYA MediaQuery, TANPA ScreenUtil.init
             return MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+              data: MediaQuery.of(context).copyWith(
+                textScaler: const TextScaler.linear(1.0), // ✅ Cara baru
+              ),
               child: widget!,
             );
           },

@@ -4,7 +4,7 @@ class AttendanceModel {
   final String note;
   final double latitude;
   final double longitude;
-  final String selfie;
+  final String selfie; // Base64 string
 
   AttendanceModel({
     required this.attSession,
@@ -25,5 +25,16 @@ class AttendanceModel {
       'longitude': longitude.toString(),
       'selfie': selfie,
     };
+  }
+
+  factory AttendanceModel.fromJson(Map<String, dynamic> json) {
+    return AttendanceModel(
+      attSession: json['att_session'] ?? '',
+      time: json['time'] ?? '',
+      note: json['note'] ?? '',
+      latitude: double.tryParse(json['latitude']?.toString() ?? '0') ?? 0.0,
+      longitude: double.tryParse(json['longitude']?.toString() ?? '0') ?? 0.0,
+      selfie: json['selfie'] ?? '',
+    );
   }
 }

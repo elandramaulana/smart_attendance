@@ -115,19 +115,19 @@ class PengajuanPage extends StatelessWidget {
                     color: Colors.red[700]!,
                     onTap: () => Get.toNamed(AppRoutes.pengajuanSakit),
                   ),
-                  _buildCompactCard(
-                    icon: Icons.exit_to_app,
-                    title: 'Izin',
-                    color: Colors.orange[700]!,
-                    onTap: () => Get.toNamed(AppRoutes.pengajuanIzin),
-                  ),
-                  if (isApproved)
-                    _buildCompactCard(
-                      icon: Icons.check_circle,
-                      title: 'Approval',
-                      color: Colors.purple[700]!,
-                      onTap: () => Get.toNamed(AppRoutes.approval),
-                    ),
+                  // _buildCompactCard(
+                  //   icon: Icons.exit_to_app,
+                  //   title: 'Izin',
+                  //   color: Colors.orange[700]!,
+                  //   onTap: () => Get.toNamed(AppRoutes.pengajuanIzin),
+                  // ),
+                  // if (isApproved)
+                  //   _buildCompactCard(
+                  //     icon: Icons.check_circle,
+                  //     title: 'Approval',
+                  //     color: Colors.purple[700]!,
+                  //     onTap: () => Get.toNamed(AppRoutes.approval),
+                  //   ),
                   _buildCompactCard(
                     icon: Icons.edit_calendar,
                     title: 'Koreksi Kehadiran',

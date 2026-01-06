@@ -191,9 +191,6 @@ class CorrectionPage extends GetView<CorrectionController> {
             case 'in':
               label = 'Masuk';
               break;
-            case 'break':
-              label = 'Istirahat';
-              break;
             case 'out':
               label = 'Keluar';
               break;

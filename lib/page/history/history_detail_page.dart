@@ -129,7 +129,7 @@ class HistoryDetailPage extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 24.w),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _buildTimeCard(
                             icon: Icons.login_rounded,
@@ -138,13 +138,16 @@ class HistoryDetailPage extends StatelessWidget {
                             status: history.inStatus,
                             color: Colors.green.shade700,
                           ),
-                          _buildTimeCard(
-                            icon: Icons.coffee_rounded,
-                            label: 'Break',
-                            time: history.breakTime,
-                            status: history.breakStatus,
-                            color: Colors.orange.shade700,
+                          SizedBox(
+                            width: 20.w,
                           ),
+                          // _buildTimeCard(
+                          //   icon: Icons.coffee_rounded,
+                          //   label: 'Break',
+                          //   time: history.breakTime,
+                          //   status: history.breakStatus,
+                          //   color: Colors.orange.shade700,
+                          // ),
                           _buildTimeCard(
                             icon: Icons.logout_rounded,
                             label: 'Keluar',
@@ -163,8 +166,11 @@ class HistoryDetailPage extends StatelessWidget {
                         children: [
                           _buildPhotoSection(
                               context, history.inSelfie, 'Masuk'),
-                          _buildPhotoSection(
-                              context, history.breakSelfie, 'Break'),
+                          // _buildPhotoSection(
+                          //     context, history.breakSelfie, 'Break'),
+                          SizedBox(
+                            width: 10.w,
+                          ),
                           _buildPhotoSection(
                               context, history.outSelfie, 'Keluar'),
                         ],

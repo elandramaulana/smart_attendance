@@ -182,13 +182,13 @@ class HomeScreen extends GetView<HomeController> {
                               color: Colors.green.shade400,
                               bgColor: const Color(0xFFC7FFCA),
                             ),
-                            SizedBox(width: screenWidth * 0.02),
-                            _buildTimeCard(
-                              icon: Icons.pause,
-                              label: controller.breakTime,
-                              color: Colors.orange.shade400,
-                              bgColor: const Color(0xFFFFFFD1),
-                            ),
+                            // SizedBox(width: screenWidth * 0.02),
+                            // _buildTimeCard(
+                            //   icon: Icons.pause,
+                            //   label: controller.breakTime,
+                            //   color: Colors.orange.shade400,
+                            //   bgColor: const Color(0xFFFFFFD1),
+                            // ),
                             SizedBox(width: screenWidth * 0.02),
                             _buildTimeCard(
                               icon: Icons.logout,

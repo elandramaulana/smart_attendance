@@ -174,7 +174,7 @@ class HistoryListCuti extends GetView<CutiFormController> {
                       child: Obx(() {
                         return RefreshIndicator(
                           onRefresh: () async {
-                            await ctrl.fetchCuti();
+                            await ctrl.fetchCuti(null);
                           },
                           child: ctrl.isLoading.value
                               ? const Center(child: CircularProgressIndicator())
@@ -193,11 +193,11 @@ class HistoryListCuti extends GetView<CutiFormController> {
                                       itemCount: ctrl.listCuti.length,
                                       itemBuilder: (_, i) {
                                         final item = ctrl.listCuti[i];
-                                        final start = item.dateStart
+                                        final start = item.tanggalMulai
                                             .toLocal()
                                             .toString()
                                             .split(' ')[0];
-                                        final end = item.dateEnd
+                                        final end = item.tanggalSelesai
                                             .toLocal()
                                             .toString()
                                             .split(' ')[0];
@@ -205,10 +205,11 @@ class HistoryListCuti extends GetView<CutiFormController> {
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 16.w, vertical: 8.h),
                                           child: CutiListItem(
-                                            title: item.leaveType,
+                                            duration: item.durationTaken,
+                                            title: item.jenis,
                                             dateTime: "$start → $end",
                                             status: item.status,
-                                            description: item.reason,
+                                            description: item.alasan,
                                           ),
                                         );
                                       },

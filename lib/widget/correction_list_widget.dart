@@ -18,8 +18,8 @@ class CorrectionListItem extends StatelessWidget {
         return Icons.login_rounded;
       case 'clock out':
         return Icons.logout_rounded;
-      case 'break':
-        return Icons.pause_rounded;
+      // case 'break':
+      //   return Icons.pause_rounded;
       default:
         return Icons.edit_calendar_rounded;
     }
@@ -121,9 +121,7 @@ class CorrectionListItem extends StatelessWidget {
                             child: Text(
                               item.correctionType == 'Clock In'
                                   ? 'Masuk'
-                                  : item.correctionType == 'Clock Out'
-                                      ? 'Pulang'
-                                      : 'Istirahat',
+                                  : 'Pulang',
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,

@@ -17,18 +17,22 @@ class SickPermitService {
   /// Ambil semua absence (Izin + Sakit), dengan optional filter month "YYYY-MM".
   Future<List<SickPermitModel>> getAbsences({String? month}) async {
     await _attachToken();
-    final resp = await _api.postFormData(
-      Endpoints.sickPermit,
-      fields: month != null ? {'month': month} : null,
-    );
-    if (resp['success'] != true) {
-      throw Exception('Failed to fetch absence');
+
+    // Bangun path dengan query parameter jika month tidak null
+    String path = Endpoints.listSick;
+    if (month != null) {
+      path += '?month=$month';
     }
 
-    final raw = resp['data'];
-    if (raw == null || raw is! List) return [];
-    return (raw as List)
-        .map((e) => SickPermitModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+    final resp = await _api.get(path);
+
+    // Response langsung berupa List
+    if (resp is! List) {
+      throw Exception(
+          'Failed to fetch cuti: Expected List but got ${resp.runtimeType}');
+    }
+    return (resp as List).map((e) {
+      return SickPermitModel.fromJson(e as Map<String, dynamic>);
+    }).toList();
   }
 }

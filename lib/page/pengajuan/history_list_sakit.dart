@@ -173,11 +173,11 @@ class HistoryListSakit extends GetView<SakitFormController> {
                                         itemCount: controller.listSakit.length,
                                         itemBuilder: (_, i) {
                                           final a = controller.listSakit[i];
-                                          final s = a.startDate
+                                          final s = a.tanggalMulai
                                               .toLocal()
                                               .toString()
                                               .split(' ')[0];
-                                          final e = a.endDate
+                                          final e = a.tanggalSelesai
                                               .toLocal()
                                               .toString()
                                               .split(' ')[0];
@@ -185,10 +185,10 @@ class HistoryListSakit extends GetView<SakitFormController> {
                                             padding:
                                                 EdgeInsets.only(bottom: 12.h),
                                             child: SakitListItem(
-                                              title: a.type,
+                                              title: a.jenis,
                                               dateTime: "$s → $e",
                                               status: a.status,
-                                              description: a.reason,
+                                              description: a.alasan,
                                             ),
                                           );
                                         },

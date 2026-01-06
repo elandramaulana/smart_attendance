@@ -12,7 +12,7 @@ class PengajuanBinding extends Bindings {
     Get.lazyPut<AuthService>(() => AuthService(Get.find<ApiProvider>()));
     Get.lazyPut<CutiFormController>(() => CutiFormController());
     Get.lazyPut<OvertimeController>(() => OvertimeController());
-    Get.lazyPut<IzinFormController>(() => IzinFormController());
+    // Get.lazyPut<IzinFormController>(() => IzinFormController());
     Get.lazyPut<SakitFormController>(() => SakitFormController());
   }
 }

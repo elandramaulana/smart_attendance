@@ -25,7 +25,7 @@ class CorrectionController extends GetxController {
   var isSubmitting = false.obs;
 
   // Opsi jenis koreksi
-  final List<String> absenceTypes = ['in', 'break', 'out'];
+  final List<String> absenceTypes = ['in', 'out'];
 
   @override
   void onInit() {

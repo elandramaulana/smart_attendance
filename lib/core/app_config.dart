@@ -5,14 +5,14 @@ enum Environment { development, staging, production }
 /// Application configuration for different environments
 class AppConfig {
   /// Current environment
-  static Environment env = Environment.staging;
+  static Environment env = Environment.production;
   static String version = '';
   static String buildNumber = '';
 
   /// Base URLs for each environment
   static const _baseUrls = {
-    Environment.staging: 'https://absensi.karyalin.com/api',
-    Environment.production: 'https://api.example.com',
+    Environment.staging: '',
+    Environment.production: 'https://absensi.karyalin.com/api',
   };
 
   /// Get current base URL
@@ -42,8 +42,10 @@ class Endpoints {
   static const String approvalAction = '/approval_action';
   static const String overtime = '/user/store_overtime';
   static const String updateProfile = '/change_photo';
-  static const String cuti = '/user/leave_history';
-  static const String sickPermit = '/user/sick_history';
+  static const String reqeuestCuti = '/cuti';
+  static const String requestSick = '/sakit';
+  static const String listCuti = '/list_cuti';
+  static const String listSick = '/list_sakit';
   static const String overtimeList = '/user/overtime_history';
   static const String historyCorrection = '/user/attendance_corrections';
 }

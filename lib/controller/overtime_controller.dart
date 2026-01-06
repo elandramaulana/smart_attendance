@@ -8,7 +8,9 @@ import 'package:smart_attendance/utils/filter_mixin.dart';
 
 class OvertimeController extends GetxController with MonthYearFilterMixin {
   final OvertimeService _service = OvertimeService();
-  var isLoading = false.obs;
+
+  // ✅ PERBAIKAN 1: Set initial loading ke true
+  var isLoading = true.obs;
   var listOvertime = <OvertimeListModel>[].obs;
 
   // Controllers untuk TextFormField tanggal
@@ -24,20 +26,54 @@ class OvertimeController extends GetxController with MonthYearFilterMixin {
   // Controller untuk deskripsi
   final descriptionController = TextEditingController();
 
+  // ✅ PERBAIKAN 2: Tambahkan flag untuk track initialization
+  var isInitialized = false.obs;
+
   @override
   void onInit() {
     super.onInit();
     bindFilter(fetchAll);
-    fetchAll(null);
+    // ✅ PERBAIKAN 3: Wrap fetchAll dalam try-catch
+    _initializeData();
+  }
+
+  // ✅ PERBAIKAN 4: Pisahkan initialization logic
+  Future<void> _initializeData() async {
+    try {
+      await fetchAll(null);
+      isInitialized.value = true;
+    } catch (e) {
+      debugPrint('Error initializing overtime data: $e');
+      isInitialized.value = true; // Set true meski error agar UI tidak stuck
+    }
   }
 
   Future<void> fetchAll(String? month) async {
     try {
       isLoading.value = true;
       final data = await _service.getOvertimes(month: month);
-      listOvertime.assignAll(data);
+
+      // ✅ PERBAIKAN 5: Tambahkan null check dan defensive copying
+      if (data != null) {
+        listOvertime.assignAll(data);
+      } else {
+        listOvertime.clear();
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Gagal mengambil data lembur:\n$e');
+      debugPrint('Error fetching overtime data: $e');
+      // ✅ PERBAIKAN 6: Hanya tampilkan snackbar jika sudah initialized
+      if (isInitialized.value) {
+        Get.snackbar(
+          'Error',
+          'Gagal mengambil data lembur',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.shade100,
+          colorText: Colors.red.shade900,
+          duration: const Duration(seconds: 2),
+        );
+      }
+      // Clear list jika error
+      listOvertime.clear();
     } finally {
       isLoading.value = false;
     }
@@ -50,7 +86,7 @@ class OvertimeController extends GetxController with MonthYearFilterMixin {
   }
 
   // PICK DATE
-  Future pickDateStart(BuildContext ctx) async {
+  Future<void> pickDateStart(BuildContext ctx) async {
     final picked = await showDatePicker(
       context: ctx,
       initialDate: dateStart.value ?? DateTime.now(),
@@ -63,7 +99,7 @@ class OvertimeController extends GetxController with MonthYearFilterMixin {
     }
   }
 
-  Future pickDateEnd(BuildContext ctx) async {
+  Future<void> pickDateEnd(BuildContext ctx) async {
     final picked = await showDatePicker(
       context: ctx,
       initialDate: dateEnd.value ?? DateTime.now(),
@@ -77,7 +113,7 @@ class OvertimeController extends GetxController with MonthYearFilterMixin {
   }
 
   // PICK TIME
-  Future pickTimeStart(BuildContext ctx) async {
+  Future<void> pickTimeStart(BuildContext ctx) async {
     final picked = await showTimePicker(
       context: ctx,
       initialTime: timeStart.value ?? TimeOfDay.now(),
@@ -85,7 +121,7 @@ class OvertimeController extends GetxController with MonthYearFilterMixin {
     if (picked != null) timeStart.value = picked;
   }
 
-  Future pickTimeEnd(BuildContext ctx) async {
+  Future<void> pickTimeEnd(BuildContext ctx) async {
     final picked = await showTimePicker(
       context: ctx,
       initialTime: timeEnd.value ?? TimeOfDay.now(),
@@ -93,17 +129,82 @@ class OvertimeController extends GetxController with MonthYearFilterMixin {
     if (picked != null) timeEnd.value = picked;
   }
 
-  // SUBMIT
-  Future submitForm() async {
-    // validasi semua field
-    if (dateStart.value == null ||
-        dateEnd.value == null ||
-        timeStart.value == null ||
-        timeEnd.value == null ||
-        descriptionController.text.trim().isEmpty) {
-      Get.snackbar('Error', 'Lengkapi semua field terlebih dahulu');
-      return;
+  // ✅ PERBAIKAN 7: Tambahkan validation helper
+  bool _validateForm() {
+    if (dateStart.value == null) {
+      Get.snackbar(
+        'Validasi',
+        'Pilih tanggal mulai terlebih dahulu',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange.shade100,
+        colorText: Colors.orange.shade900,
+      );
+      return false;
     }
+
+    if (dateEnd.value == null) {
+      Get.snackbar(
+        'Validasi',
+        'Pilih tanggal selesai terlebih dahulu',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange.shade100,
+        colorText: Colors.orange.shade900,
+      );
+      return false;
+    }
+
+    if (timeStart.value == null) {
+      Get.snackbar(
+        'Validasi',
+        'Pilih waktu mulai terlebih dahulu',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange.shade100,
+        colorText: Colors.orange.shade900,
+      );
+      return false;
+    }
+
+    if (timeEnd.value == null) {
+      Get.snackbar(
+        'Validasi',
+        'Pilih waktu selesai terlebih dahulu',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange.shade100,
+        colorText: Colors.orange.shade900,
+      );
+      return false;
+    }
+
+    if (descriptionController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Validasi',
+        'Masukkan deskripsi lembur',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange.shade100,
+        colorText: Colors.orange.shade900,
+      );
+      return false;
+    }
+
+    // ✅ PERBAIKAN 8: Validasi logika tanggal
+    if (dateEnd.value!.isBefore(dateStart.value!)) {
+      Get.snackbar(
+        'Validasi',
+        'Tanggal selesai tidak boleh lebih awal dari tanggal mulai',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange.shade100,
+        colorText: Colors.orange.shade900,
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  // SUBMIT
+  Future<void> submitForm() async {
+    // ✅ PERBAIKAN 9: Gunakan helper validation
+    if (!_validateForm()) return;
 
     final model = Overtime(
       dateStart: dateStart.value!.toIso8601String().split('T').first,
@@ -116,27 +217,51 @@ class OvertimeController extends GetxController with MonthYearFilterMixin {
     try {
       isLoading.value = true;
       await _service.submitOvertime(model);
+
+      // ✅ PERBAIKAN 10: Clear form setelah sukses
+      _clearForm();
+
       // Snackbar sukses
       Get.snackbar(
-        'Success',
-        'Pengajuan lembur berhasil',
+        'Berhasil',
+        'Pengajuan lembur berhasil dikirim',
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.green,
         colorText: Colors.white,
+        duration: const Duration(seconds: 2),
       );
+
       // Arahkan kembali ke bottomNav
       Get.offAllNamed(AppRoutes.bottomNav);
     } catch (e) {
+      debugPrint('Error submitting overtime: $e');
       Get.snackbar(
-        'Error',
-        'Gagal mengirim pengajuan: $e',
+        'Gagal',
+        'Gagal mengirim pengajuan: ${e.toString()}',
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
+        duration: const Duration(seconds: 3),
       );
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // ✅ PERBAIKAN 11: Helper untuk clear form
+  void _clearForm() {
+    startDateController.clear();
+    endDateController.clear();
+    descriptionController.clear();
+    dateStart.value = null;
+    dateEnd.value = null;
+    timeStart.value = null;
+    timeEnd.value = null;
+  }
+
+  // ✅ PERBAIKAN 12: Public method untuk manual clear form
+  void clearForm() {
+    _clearForm();
   }
 
   @override
@@ -146,52 +271,4 @@ class OvertimeController extends GetxController with MonthYearFilterMixin {
     descriptionController.dispose();
     super.onClose();
   }
-
-  final listDummy = <Map<String, String>>[
-    {
-      "title": "Lembur Proyek A",
-      "dateTime": "1 April 2025 - 18:00 WIB",
-      "status": "Disetujui",
-      "description": "Lembur untuk menyelesaikan deadline Proyek A."
-    },
-    {
-      "title": "Lembur Persiapan Meeting",
-      "dateTime": "3 April 2025 - 19:00 WIB",
-      "status": "Pending",
-      "description": "Lembur mempersiapkan materi untuk meeting klien."
-    },
-    {
-      "title": "Lembur Update Sistem",
-      "dateTime": "5 April 2025 - 20:00 WIB",
-      "status": "Disetujui",
-      "description":
-          "Lembur untuk melakukan update sistem dan maintenance server."
-    },
-    {
-      "title": "Lembur Evaluasi Kinerja",
-      "dateTime": "10 April 2025 - 21:00 WIB",
-      "status": "Ditolak",
-      "description":
-          "Pengajuan lembur untuk evaluasi kinerja, namun pengajuan ditolak."
-    },
-    {
-      "title": "Lembur Kick-Off Proyek",
-      "dateTime": "15 April 2025 - 18:30 WIB",
-      "status": "Disetujui",
-      "description": "Lembur sebagai persiapan kick-off proyek baru."
-    },
-    {
-      "title": "Lembur Penyelesaian Dokumen",
-      "dateTime": "20 April 2025 - 20:30 WIB",
-      "status": "Pending",
-      "description":
-          "Pengajuan lembur untuk menyelesaikan dokumen laporan akhir."
-    },
-    {
-      "title": "Lembur Darurat",
-      "dateTime": "25 April 2025 - 22:00 WIB",
-      "status": "Disetujui",
-      "description": "Lembur mendadak karena adanya kendala operasional."
-    },
-  ];
 }

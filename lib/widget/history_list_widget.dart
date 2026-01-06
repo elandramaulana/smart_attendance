@@ -134,20 +134,14 @@ class HistoryCard extends StatelessWidget {
                     color: Colors.grey.shade200,
                     margin: EdgeInsets.symmetric(horizontal: 8.w),
                   ),
-                  _buildTimeInfo(
-                    icon: Icons.coffee_rounded,
-                    label: "Break",
-                    time: history.breakTime.toString() == "null"
-                        ? "-"
-                        : history.breakTime.toString(),
-                    color: Colors.amber.shade600,
-                  ),
-                  Container(
-                    height: 40.h,
-                    width: 1,
-                    color: Colors.grey.shade200,
-                    margin: EdgeInsets.symmetric(horizontal: 8.w),
-                  ),
+                  // _buildTimeInfo(
+                  //   icon: Icons.coffee_rounded,
+                  //   label: "Break",
+                  //   time: history.breakTime.toString() == "null"
+                  //       ? "-"
+                  //       : history.breakTime.toString(),
+                  //   color: Colors.amber.shade600,
+                  // ),
                   _buildTimeInfo(
                     icon: Icons.logout_rounded,
                     label: "Keluar",

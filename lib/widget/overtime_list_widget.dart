@@ -19,75 +19,35 @@ class LemburListItem extends StatelessWidget {
     this.onTap,
   });
 
-  // Warna berdasarkan status
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return const Color(0xFFFFA726); // Oranye yang lebih cerah
+        return const Color(0xFFFFA726);
       case 'approved':
-        return const Color(0xFF26A69A); // Teal yang lebih cerah
+        return const Color(0xFF26A69A);
       case 'rejected':
-        return const Color(0xFFEF5350); // Merah yang lebih cerah
+        return const Color(0xFFEF5350);
       default:
-        return const Color(0xFF78909C); // BlueGrey yang lebih cerah
+        return const Color(0xFF78909C);
     }
   }
 
-  // Warna latar belakang card berdasarkan status
   Color _getCardBackgroundColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return const Color(0xFFFFF3E0); // Oranye muda
+        return const Color(0xFFFFF3E0);
       case 'approved':
-        return const Color(0xFFE0F2F1); // Teal muda
+        return const Color(0xFFE0F2F1);
       case 'rejected':
-        return const Color(0xFFFFEBEE); // Merah muda
+        return const Color(0xFFFFEBEE);
       default:
-        return const Color(0xFFECEFF1); // BlueGrey muda
+        return const Color(0xFFECEFF1);
     }
   }
 
-  // // Hitung durasi lembur
-  // String _calculateDuration() {
-  //   try {
-  //     // Parse waktu dalam format 24 jam (asumsi format: HH:mm)
-  //     final List<String> startParts = startTime.split(':');
-  //     final List<String> endParts = endTime.split(':');
-
-  //     if (startParts.length >= 2 && endParts.length >= 2) {
-  //       int startHour = int.tryParse(startParts[0]) ?? 0;
-  //       int startMinute = int.tryParse(startParts[1]) ?? 0;
-  //       int endHour = int.tryParse(endParts[0]) ?? 0;
-  //       int endMinute = int.tryParse(endParts[1]) ?? 0;
-
-  //       // Konversi ke menit total
-  //       int startTotalMinutes = startHour * 60 + startMinute;
-  //       int endTotalMinutes = endHour * 60 + endMinute;
-
-  //       // Jika waktu akhir lebih kecil dari waktu mulai, asumsi melewati tengah malam
-  //       if (endTotalMinutes < startTotalMinutes) {
-  //         endTotalMinutes += 24 * 60; // Tambah 24 jam dalam menit
-  //       }
-
-  //       int durationMinutes = endTotalMinutes - startTotalMinutes;
-  //       int hours = durationMinutes ~/ 60;
-  //       int minutes = durationMinutes % 60;
-
-  //       return '${hours}j ${minutes}m';
-  //     }
-  //   } catch (e) {
-  //     // Error handling
-  //   }
-
-  //   return '-';
-  // }
-
   @override
   Widget build(BuildContext context) {
-    // final String duration = _calculateDuration();
-
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
@@ -117,41 +77,33 @@ class LemburListItem extends StatelessWidget {
             padding: EdgeInsets.all(16.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 // Header Section
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Nama karyawan dengan ikon
-                    Expanded(
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 18.r,
-                            backgroundColor:
-                                _getStatusColor(status).withOpacity(0.2),
-                            child: Icon(
-                              Icons.work_outline_rounded,
-                              color: _getStatusColor(status),
-                              size: 20.sp,
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: Text(
-                              employeeName,
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+                    CircleAvatar(
+                      radius: 18.r,
+                      backgroundColor: _getStatusColor(status).withOpacity(0.2),
+                      child: Icon(
+                        Icons.work_outline_rounded,
+                        color: _getStatusColor(status),
+                        size: 20.sp,
                       ),
                     ),
-                    // Status label
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Text(
+                        employeeName,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
                     Container(
                       padding: EdgeInsets.symmetric(
                         vertical: 6.h,
@@ -188,8 +140,7 @@ class LemburListItem extends StatelessWidget {
 
                 SizedBox(height: 12.h),
 
-                // Content Section
-                // Tanggal
+                // Date Section
                 Row(
                   children: [
                     Icon(
@@ -198,12 +149,15 @@ class LemburListItem extends StatelessWidget {
                       color: Colors.grey.shade700,
                     ),
                     SizedBox(width: 8.w),
-                    Text(
-                      dateRange,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade800,
+                    Expanded(
+                      child: Text(
+                        dateRange,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade800,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -211,30 +165,30 @@ class LemburListItem extends StatelessWidget {
 
                 SizedBox(height: 10.h),
 
-                // Waktu & Durasi area
+                // Time Section
                 Container(
                   padding: EdgeInsets.all(10.w),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(8.r),
                   ),
-                  child: Column(
-                    children: [
-                      // Waktu mulai dan selesai
-                      Row(
-                        children: [
-                          // Waktu mulai
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.login_rounded,
-                                  size: 16.sp,
-                                  color: Colors.green.shade700,
-                                ),
-                                SizedBox(width: 8.w),
-                                Column(
+                  child: IntrinsicHeight(
+                    child: Row(
+                      children: [
+                        // Start Time
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.login_rounded,
+                                size: 16.sp,
+                                color: Colors.green.shade700,
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
                                       'Mulai',
@@ -250,25 +204,36 @@ class LemburListItem extends StatelessWidget {
                                         fontWeight: FontWeight.w500,
                                         color: Colors.grey.shade900,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
+                        ),
 
-                          // Waktu selesai
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.logout_rounded,
-                                  size: 16.sp,
-                                  color: Colors.red.shade700,
-                                ),
-                                SizedBox(width: 8.w),
-                                Column(
+                        // Vertical Divider
+                        VerticalDivider(
+                          width: 20.w,
+                          thickness: 1,
+                          color: Colors.grey.shade300,
+                        ),
+
+                        // End Time
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.logout_rounded,
+                                size: 16.sp,
+                                color: Colors.red.shade700,
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
                                       'Selesai',
@@ -284,45 +249,16 @@ class LemburListItem extends StatelessWidget {
                                         fontWeight: FontWeight.w500,
                                         color: Colors.grey.shade900,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-
-                      // SizedBox(height: 8.h),
-
-                      // // Divider
-                      // Divider(
-                      //   height: 1.h,
-                      //   thickness: 1.h,
-                      //   color: Colors.grey.withOpacity(0.15),
-                      // ),
-
-                      // SizedBox(height: 8.h),
-
-                      // // Durasi
-                      // Row(
-                      //   children: [
-                      //     Icon(
-                      //       Icons.timer_outlined,
-                      //       size: 16.sp,
-                      //       color: Colors.indigo.shade700,
-                      //     ),
-                      //     SizedBox(width: 8.w),
-                      //     Text(
-                      //       'Durasi: ',
-                      //       style: TextStyle(
-                      //         fontSize: 12.sp,
-                      //         color: Colors.grey.shade600,
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

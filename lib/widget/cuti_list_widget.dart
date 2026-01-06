@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:smart_attendance/utils/text_formatter_helper.dart';
 
 class CutiListItem extends StatelessWidget {
   final String title;
   final String dateTime;
   final String status;
   final String description;
+  final int duration;
   final VoidCallback? onTap;
 
   const CutiListItem({
@@ -14,6 +16,7 @@ class CutiListItem extends StatelessWidget {
     required this.dateTime,
     required this.status,
     required this.description,
+    required this.duration,
     this.onTap,
   });
 
@@ -129,7 +132,7 @@ class CutiListItem extends StatelessWidget {
                           SizedBox(width: 12.w),
                           Expanded(
                             child: Text(
-                              title,
+                              TextFormatterHelper.formatLeaveType(title),
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,
@@ -189,6 +192,15 @@ class CutiListItem extends StatelessWidget {
                     SizedBox(width: 8.w),
                     Text(
                       date,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      '($duration hari)',
                       style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w500,

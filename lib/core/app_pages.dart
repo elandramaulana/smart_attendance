@@ -98,11 +98,11 @@ class AppPages {
       page: () => const HistoryListCorrection(),
       binding: CorrectionBinding(),
     ),
-    GetPage(
-      name: AppRoutes.pengajuanIzin,
-      page: () => const HistoryListIzin(),
-      binding: PengajuanBinding(),
-    ),
+    // GetPage(
+    //   name: AppRoutes.pengajuanIzin,
+    //   page: () => const HistoryListIzin(),
+    //   binding: PengajuanBinding(),
+    // ),
     GetPage(
       name: AppRoutes.formCuti,
       page: () => const FormCutiPage(),
@@ -118,11 +118,11 @@ class AppPages {
       page: () => FormSakitPage(),
       binding: PengajuanBinding(),
     ),
-    GetPage(
-      name: AppRoutes.formIzin,
-      page: () => const FormIzinPage(),
-      binding: PengajuanBinding(),
-    ),
+    // GetPage(
+    //   name: AppRoutes.formIzin,
+    //   page: () => const FormIzinPage(),
+    //   binding: PengajuanBinding(),
+    // ),
     GetPage(
       name: AppRoutes.profile,
       page: () => const ProfilePage(),
